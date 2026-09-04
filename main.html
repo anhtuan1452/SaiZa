@@ -100,7 +100,15 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .work{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
 @media(max-width:1040px){.work{grid-template-columns:1fr}}
 .lines{display:flex;flex-direction:column;gap:8px}
-.line{display:grid;grid-template-columns:58px 1fr 66px 46px;gap:10px;align-items:center}
+.line{display:grid;grid-template-columns:62px 1fr 128px 62px 44px;gap:9px;align-items:center}
+@media(max-width:900px){.line{grid-template-columns:56px 1fr 62px 44px}.line .vsel{display:none}}
+.line .no{line-height:1.25}
+.vsel{background:var(--ink);border:1px solid var(--line);color:var(--paper);font-family:inherit;font-size:11.5px;padding:5px 6px;border-radius:3px;width:100%}
+select.vsel{cursor:pointer}
+span.vsel{border-color:transparent;background:transparent;font-size:11px;text-align:center;padding:0}
+.strbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:10px 13px;margin-bottom:4px;background:var(--ink-2);border:1px solid var(--line);border-radius:3px;font-size:12.5px;color:var(--dim)}
+.strbar b{color:var(--paper);font-weight:600}
 .seg .ind{position:absolute;top:3px;right:3px;display:flex;gap:2px}
 .seg .ind i{width:5px;height:5px;border-radius:50%;background:var(--ink-4)}
 .seg .ind i.f{background:var(--sage)}
@@ -357,23 +365,68 @@ const CLIP_VND={lite:200,fast:400,standard:1600};
 const clipUsd=t=>CLIP_VND[t]/VND;
 const TIER_VI={lite:'Lite',fast:'Fast',standard:'Standard'};
 const TIERS={
-  thrifty:{label:'Tiết kiệm',map:{b01:'lite',b03:'lite',b05:'lite'}},
-  balanced:{label:'Cân bằng',map:{b01:'fast',b03:'lite',b05:'lite'}},
-  premium:{label:'Chất lượng cao',map:{b01:'standard',b03:'fast',b05:'fast'}}};
-const BEATS=[
- {id:'b01',kind:'generate',t:[0,3],name:'Mở đầu',goal:'Chặn lướt bằng nghịch lý',
+  thrifty:{label:'Tiết kiệm',map:{b01:'lite',def:'lite'}},
+  balanced:{label:'Cân bằng',map:{b01:'fast',def:'lite'}},
+  premium:{label:'Chất lượng cao',map:{b01:'standard',def:'fast'}}};
+const tierOf=(t,id)=>TIERS[t].map[id]||TIERS[t].map.def;
+const MASTER=[
+ {id:'b01',kind:'generate',dur:3,name:'Mở đầu',goal:'Chặn lướt bằng nghịch lý',
   desc:'Cận mặt người đàn ông 30 tuổi, biểu cảm bất lực vui vẻ, tay cầm hộp máy massage cổ',
   say:'Anh mua cái này về vợ giành mất luôn'},
- {id:'b02',kind:'reuse',t:[3,8],name:'Vấn đề',say:'Ngồi máy tính cả ngày cổ mỏi nhức không chịu nổi'},
- {id:'b03',kind:'generate',t:[8,16],name:'Trình diễn',goal:'Cho thấy cách dùng',
+ {id:'b02',kind:'reuse',dur:4,name:'Vấn đề',goal:'Chạm đúng nỗi đau',
+  desc:'Người ngồi máy tính lâu, đưa tay bóp gáy, vẻ mặt khó chịu, ánh đèn văn phòng',
+  say:'Ngồi máy tính cả ngày cổ mỏi nhức không chịu nổi'},
+ {id:'b03',kind:'generate',dur:5,name:'Trình diễn',goal:'Cho thấy cách dùng',
   desc:'Toàn cảnh phòng khách, người đeo máy lên cổ rồi ngả ra ghế, ánh sáng chiều ấm',
   say:'Đeo vô mười lăm phút là cổ nhẹ hẳn'},
- {id:'b04',kind:'reuse',t:[16,23],name:'Bằng chứng',say:'Vợ anh dùng xong khen quá trời'},
- {id:'b05',kind:'generate',t:[23,30],name:'Chào hàng',goal:'Nêu lý do mua ngay',
+ {id:'b04',kind:'reuse',dur:5,name:'Cận thao tác',goal:'Cho thấy dùng dễ',
+  desc:'Cực cận ngón tay bấm nút nguồn trên thân máy, đèn báo sáng lên',
+  say:'Bấm một nút là chạy, không cần chỉnh gì'},
+ {id:'b05',kind:'generate',dur:5,name:'Bằng chứng',goal:'Tạo tin tưởng',
+  desc:'Hai khung hình cạnh nhau, trước và sau khi dùng, người mẫu thả lỏng vai',
+  say:'Vợ anh dùng xong khen quá trời'},
+ {id:'b06',kind:'reuse',dur:4,name:'Chi tiết sản phẩm',goal:'Trả lời thắc mắc',
+  desc:'Cận cổng sạc và đèn báo pin trên thân máy, xoay nhẹ',
+  say:'Pin dùng cả tuần mới sạc lại'},
+ {id:'b07',kind:'generate',dur:5,name:'Chào hàng',goal:'Nêu lý do mua ngay',
   desc:'Cận sản phẩm xoay chậm trên bàn gỗ, nền tối, ánh sáng studio mềm',
   say:'Giá này còn rẻ hơn một buổi đi massage'},
- {id:'b06',kind:'shoot',t:[30,35],name:'Chốt đơn',say:'Giỏ hàng bên dưới nha anh em'}];
-const GEN=BEATS.filter(b=>b.kind==='generate');
+ {id:'b08',kind:'shoot',dur:4,name:'Chốt đơn',goal:'Đẩy về giỏ hàng',
+  desc:'Tự quay, cận mặt nói thẳng vào máy quay',
+  say:'Giỏ hàng bên dưới nha anh em'}];
+
+/* Biến thể cấu trúc, áp lên bản sao của Video 1 */
+const STRUCTS=[
+ {k:'same',      n:'Giống Video 1'},
+ {k:'swap',      n:'Đảo hai đoạn giữa'},
+ {k:'proofUp',   n:'Bằng chứng lên sớm'},
+ {k:'short',     n:'Rút còn 6 đoạn'},
+ {k:'moreAI',    n:'Tăng phần AI'},
+ {k:'moreReuse', n:'Tăng phần tư liệu'}];
+
+const VID={};
+function vinfo(v){return VID[v]||(VID[v]={variant:'same'})}
+function applyVariant(bs,k){
+  const by=id=>bs.findIndex(b=>b.id===id);
+  if(k==='swap'){const i=by('b03'),j=by('b04');if(i>=0&&j>=0){const t=bs[i];bs[i]=bs[j];bs[j]=t}}
+  if(k==='proofUp'){const i=by('b05');if(i>1){const [x]=bs.splice(i,1);bs.splice(1,0,x)}}
+  if(k==='short'){bs=bs.filter(b=>b.id!=='b05'&&b.id!=='b06');
+    bs=bs.map(b=>({...b,dur:+(b.dur*35/26).toFixed(1)}))}
+  if(k==='moreAI'){const i=by('b02');if(i>=0)bs[i]={...bs[i],kind:'generate'}}
+  if(k==='moreReuse'){const i=by('b07');if(i>=0)bs[i]={...bs[i],kind:'reuse'}}
+  return bs
+}
+function beatsOf(v){
+  let bs=MASTER.map(b=>({...b}));
+  if(v>1)bs=applyVariant(bs,vinfo(v).variant);
+  let t=0;
+  return bs.map(b=>{const o={...b,t:[+t.toFixed(1),+(t+b.dur).toFixed(1)]};t+=b.dur;return o})
+}
+function ratio(v){
+  const bs=beatsOf(v),tot=bs.reduce((s,b)=>s+b.dur,0);
+  const ai=bs.filter(b=>b.kind==='generate').reduce((s,b)=>s+b.dur,0);
+  return {tot:+tot.toFixed(1),ai:Math.round(ai/tot*100),src:100-Math.round(ai/tot*100),n:bs.length}
+}
 const VARIANT=['giữ nguyên hướng gốc','đổi bối cảnh sang bếp','đổi sang buổi tối đèn vàng',
  'thêm người thứ hai trong khung','góc máy thấp hơn','đổi sang văn phòng',
  'máy quay đẩy vào chậm','tông màu lạnh hơn','cận hơn vào tay','toàn cảnh rộng hơn'];
@@ -563,7 +616,7 @@ function dur(txt){return +(txt.length/13.5/rate).toFixed(1)}
 function paintVoiceLines(){
   const box=document.getElementById('vlines');box.innerHTML='';
   let done=0,total=0;
-  for(let v=1;v<=batch;v++)BEATS.forEach(b=>{
+  for(let v=1;v<=batch;v++)beatsOf(v).forEach(b=>{
     if(!b.say)return;total++;
     const s=st(v,b.id);if(s.voice)done++;
     const row=document.createElement('div');row.className='vline';
@@ -594,25 +647,44 @@ function segTitle(v,b){
 }
 function paintLines(){
   const box=document.getElementById('lines');box.innerHTML='';
+  const r1=ratio(1);
+  const head=document.createElement('div');head.className='strbar';
+  head.innerHTML='<span>Cấu trúc gốc lấy từ <b>Video 1</b> · '+r1.n+' đoạn · '+r1.tot+'s · '
+    +'<b style="color:var(--amber)">'+r1.ai+'% AI</b> / <b style="color:var(--sage)">'+r1.src+'% tư liệu</b></span>'
+    +'<button class="mini" id="cloneAll">Chép cấu trúc Video 1 cho tất cả</button>';
+  box.appendChild(head);
+
   for(let v=1;v<=batch;v++){
-    const said=BEATS.filter(b=>b.say&&st(v,b.id).voice).length;
-    const total=BEATS.filter(b=>b.say).length;
+    const bs=beatsOf(v),r=ratio(v);
+    const said=bs.filter(b=>b.say&&st(v,b.id).voice).length;
+    const total=bs.filter(b=>b.say).length;
     const row=document.createElement('div');row.className='line';
-    row.innerHTML='<span class="no mono">Video '+v+'</span><div class="strip">'
-      +BEATS.map(b=>{const s=st(v,b.id);
-        const ready=b.kind==='generate'?!!s.file:true;
+    row.innerHTML='<span class="no mono">Video '+v+'<br><span style="font-size:10px">'+r.ai+'/'+r.src+'</span></span>'
+      +'<div class="strip">'
+      +bs.map(b=>{const st2=st(v,b.id);
         return '<div class="seg '+b.kind+'" data-v="'+v+'" data-b="'+b.id
-          +'" style="flex:'+(b.t[1]-b.t[0])+'" tabindex="0" title="'+segTitle(v,b)+'">'
-          +'<span class="fill"></span><span class="ind"><i class="'+(ready&&s.file?'f':'')+'"></i>'
-          +(b.say?'<i class="'+(s.voice?'v':'')+'"></i>':'')+'</span>'
+          +'" style="flex:'+b.dur+'" tabindex="0" title="'+segTitle(v,b)+'">'
+          +'<span class="fill"></span><span class="ind"><i class="'+(st2.file?'f':'')+'"></i>'
+          +(b.say?'<i class="'+(st2.voice?'v':'')+'"></i>':'')+'</span>'
           +'<span class="t">'+b.name+'</span><span class="stx">'+subLabel(v,b)+'</span></div>'}).join('')
-      +'</div><span class="stt" id="stt'+v+'">'+said+'/'+total+' giọng</span>'
+      +'</div>'
+      +(v===1?'<span class="vsel mono" style="color:var(--amber)">cấu trúc gốc</span>'
+             :'<select class="vsel" data-var="'+v+'">'
+              +STRUCTS.map(o=>'<option value="'+o.k+'"'+(vinfo(v).variant===o.k?' selected':'')+'>'+o.n+'</option>').join('')
+              +'</select>')
+      +'<span class="stt" id="stt'+v+'">'+said+'/'+total+' giọng</span>'
       +'<button class="playbtn" data-play="'+v+'">Xem</button>';
     box.appendChild(row)}
+
   box.querySelectorAll('.seg').forEach(el=>{
     el.onclick=()=>{sel={v:+el.dataset.v,b:el.dataset.b};markSel();paintInsp()};
     el.onkeydown=e=>{if(e.key==='Enter')el.click()}});
   box.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>playAll(+b.dataset.play));
+  box.querySelectorAll('[data-var]').forEach(sl=>sl.onchange=()=>{
+    vinfo(+sl.dataset.var).variant=sl.value;paintLines();paintVoiceLines();paintInsp();if(!spent)paintCost()});
+  const ca=box.querySelector('#cloneAll');
+  if(ca)ca.onclick=()=>{for(let v=2;v<=batch;v++)vinfo(v).variant='same';
+    paintLines();paintVoiceLines();paintInsp();if(!spent)paintCost()};
   markSel()
 }
 function markSel(){document.querySelectorAll('.seg').forEach(e=>
@@ -624,12 +696,13 @@ const FALLBACK={
  b05:'Cận cảnh máy massage cổ xoay chậm trên mặt bàn gỗ, nền tối, ánh sáng studio mềm hắt từ trên. Máy quay chuyển động vòng cung chậm quanh sản phẩm, khung dọc 9:16.'};
 
 function paintInsp(){
-  const b=BEATS.find(x=>x.id===sel.b),v=sel.v,s=st(v,b.id);
+  const v=sel.v,bs=beatsOf(v),b=bs.find(x=>x.id===sel.b)||bs[0],s=st(v,b.id);
+  sel.b=b.id;
   const box=document.getElementById('inspBox');
   const chip={generate:'SINH MỚI',reuse:'TÁI SỬ DỤNG',shoot:'TỰ QUAY'}[b.kind];
   let body='';
   if(b.kind==='generate'){
-    const m=TIERS[tier].map[b.id];
+    const m=tierOf(tier,b.id);
     body='<div class="ilbl">Prompt dựng cảnh · biến thể “'+VARIANT[(v-1)%10]+'”</div>'
       +'<textarea class="pmt" id="pmt" placeholder="Bấm “Viết bằng AI” hoặc tự gõ…">'+(s.prompt||'')+'</textarea>'
       +'<div class="acts"><button id="aAI">Viết bằng AI</button><button id="aCopy">Sao chép</button>'
@@ -651,6 +724,14 @@ function paintInsp(){
     body='<div class="ilbl">Đoạn tự quay, lấy từ thư viện của kênh</div>'
       +'<div class="vtext">cta_chotdon_v2.mp4 · 5,0s · 1080×1920</div>'
       +'<div class="drop" id="dz" style="margin-top:12px">Thay bằng file khác</div><div id="prevBox"></div>'}
+  const kindRow=(v===1)
+    ?'<div class="vrow"><div class="ilbl">Loại đoạn trong cấu trúc gốc</div>'
+      +'<div class="radios" id="kindBtns">'
+      +[['generate','Sinh mới'],['reuse','Tái sử dụng'],['shoot','Tự quay']].map(x=>
+        '<button data-k="'+x[0]+'" aria-pressed="'+(b.kind===x[0])+'">'+x[1]+'</button>').join('')
+      +'</div><div class="apist">Đổi ở đây sẽ áp cho mọi video đang nhân bản cấu trúc gốc.</div></div>'
+    :'<div class="vrow"><div class="ilbl">Cấu trúc</div><div class="apist">Nhân bản từ Video 1 · biến thể “'
+      +(STRUCTS.find(x=>x.k===vinfo(v).variant)||STRUCTS[0]).n+'”. Muốn đổi loại đoạn thì sửa ở Video 1.</div></div>';
   const vd=!!s.voice;
   const vrow=b.say?'<div class="vrow"><div class="ilbl">Lời thoại · '
     +(vd?'đã sinh bằng '+VOICES.find(x=>x.id===voiceId).n.toLowerCase():'chưa sinh giọng')
@@ -659,7 +740,7 @@ function paintInsp(){
   box.innerHTML='<div class="insphead"><span class="chip '+b.kind+'">'+chip+'</span>'
     +'<span class="ttl">Video '+v+' · '+b.name+'</span>'
     +'<span class="mono" style="font-size:11.5px;color:var(--dim)">'+b.t[0]+'–'+b.t[1]+'s</span></div>'
-    +'<div class="ibody">'+body+vrow+'</div>';
+    +'<div class="ibody">'+body+kindRow+vrow+'</div>';
 
   if(b.kind==='generate'){
     const ta=box.querySelector('#pmt');
@@ -689,6 +770,10 @@ function paintInsp(){
     sc.onchange=()=>{s.clip=CLIPS.find(c=>c.id===sc.value);paintInsp();paintLines()};
     box.querySelector('#aEdit').onclick=()=>{curClip=s.clip||autoClip(v,b);showTab('edt');paintEditor()};
     renderClip(box.querySelector('#rp'),s.clip||autoClip(v,b))}
+  const kb=box.querySelector('#kindBtns');
+  if(kb)kb.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+    const m=MASTER.find(x=>x.id===b.id);if(m)m.kind=btn.dataset.k;
+    paintLines();paintVoiceLines();paintInsp();if(!spent)paintCost()});
   const dz=box.querySelector('#dz');if(dz)wireDrop(dz,v,b);
   const av=box.querySelector('#aVoice');
   if(av)av.onclick=()=>{if(!s.voice){s.voice={dur:dur(b.say)};paintVoiceLines();paintLines();paintInsp()}speak(b.say)};
@@ -736,20 +821,22 @@ async function writePrompt(v,b,ta,btn){
 }
 
 /* ---------------- chi phí ---------------- */
-function perVideo(t){
-  const g=GEN.reduce((s,b)=>s+clipUsd(TIERS[t].map[b.id]),0);
-  const vo=BEATS.filter(b=>b.say).length*VOICE_USD;
+function videoUsd(t,v){
+  const bs=beatsOf(v);
+  const g=bs.filter(b=>b.kind==='generate').reduce((s,b)=>s+clipUsd(tierOf(t,b.id)),0);
+  const vo=bs.filter(b=>b.say).length*VOICE_USD;
   return (g+vo)*RETRY
 }
+function totalEst(t){let s=.05*RETRY;for(let v=1;v<=batch;v++)s+=videoUsd(t,v);return s}
 function paintCost(){
   document.getElementById('costMain').textContent=fmtVnd(spent);
   document.getElementById('costSub').textContent=spent===0
-    ?'dự kiến '+fmtVnd(perVideo(tier)*batch+.05*RETRY)+' cho '+batch+' video'
+    ?'dự kiến '+fmtVnd(totalEst(tier))+' cho '+batch+' video'
     :batch+' video · '+fmtVnd(spent/batch)+' mỗi video';
   document.getElementById('costRows').innerHTML=ledger.map(r=>
     '<div class="row"><span class="k">'+r.k+'</span><span class="mono">'+fmtVnd(r.v)+'</span></div>').join('')
     +(ledger.length?'<div class="row sum"><span class="k">Tổng</span><span class="mono">'+fmtVnd(spent)+'</span></div>':'');
-  const tv=spent||perVideo(tier)*batch+.05*RETRY,mv=batch*MANUAL_VND;
+  const tv=spent||totalEst(tier),mv=batch*MANUAL_VND;
   document.getElementById('cmp').innerHTML=
     '<div class="row"><span class="k">Thủ công · tiền</span><span class="mono">'+mv.toLocaleString('vi-VN')+' đ</span></div>'
    +'<div class="row"><span class="k">Thủ công · giờ người</span><span class="mono">'+(batch*MANUAL_MIN/60).toFixed(0)+' giờ</span></div>'
@@ -771,7 +858,7 @@ function fill(seg,ms){const f=seg.querySelector('.fill'),t0=performance.now();
 
 async function runLine(v){
   const stt=document.getElementById('stt'+v);
-  for(const b of BEATS){
+  for(const b of beatsOf(v)){
     const seg=document.querySelector('.seg[data-v="'+v+'"][data-b="'+b.id+'"]');
     seg.classList.add('active');stt.textContent=b.name.toLowerCase();
     const s=st(v,b.id);
@@ -779,7 +866,7 @@ async function runLine(v){
       if(s.file){entry('generate','Video '+v+' · '+b.name+' · file của bạn','0 đ','Dùng '+s.file+', không gọi API.');
         await fill(seg,420)}
       else if(API.pipe&&apiReady()){
-        const m=TIERS[tier].map[b.id];
+        const m=tierOf(tier,b.id);
         stt.textContent='dựng '+b.name.toLowerCase();
         const f=seg.querySelector('.fill');f.style.right='55%';
         try{
@@ -790,7 +877,7 @@ async function runLine(v){
           entry('generate','Video '+v+' · '+b.name+' · lỗi API','0 đ',e.message);
         }
         await fill(seg,300)}
-      else{const m=TIERS[tier].map[b.id],c=clipUsd(m)*RETRY;
+      else{const m=tierOf(tier,b.id),c=clipUsd(m)*RETRY;
         entry('generate','Video '+v+' · '+b.name+' · Veo '+TIER_VI[m],fmtVnd(c),
           s.prompt?'Dựng 8 giây từ prompt đã duyệt.':'Chưa có prompt, dùng mô tả cảnh mặc định.');
         await fill(seg,850+Math.random()*450);addCost('V'+v+' · '+b.name+' · '+TIER_VI[m],c)}}
@@ -813,8 +900,10 @@ async function run(){
   if(running)return;
   if(API.pipe&&apiReady()){
     let n=0;
-    for(let v=1;v<=batch;v++)for(const b of GEN)if(!st(v,b.id).file&&!st(v,b.id).viaApi)n++;
-    const est=GEN.reduce((a,b)=>a+clipUsd(TIERS[tier].map[b.id]),0)*batch;
+    let est=0;
+    for(let v=1;v<=batch;v++)for(const b of beatsOf(v)){
+      if(b.kind!=='generate')continue;
+      if(!st(v,b.id).file&&!st(v,b.id).viaApi){n++;est+=clipUsd(tierOf(tier,b.id))}}
     if(!confirm('Sắp gọi Veo API thật cho '+n+' cảnh.\n\nChi phí ước tính: '+fmtVnd(est)
       +'\nTiền trừ vào tài khoản Google của bạn.\n\nTiếp tục?'))return;
   }
@@ -845,9 +934,9 @@ function playAll(v){
   plVideo=v;
   const modal=document.getElementById('modal');
   modal.classList.add('on');
-  document.getElementById('plTitle').textContent='Video '+v+' · 35 giây';
+  document.getElementById('plTitle').textContent='Video '+v+' · '+ratio(v).tot+' giây · '+ratio(v).ai+'% AI';
   const bar=document.getElementById('plBar');
-  bar.innerHTML=BEATS.map(b=>'<i style="flex:'+(b.t[1]-b.t[0])+'"><span></span></i>').join('');
+  bar.innerHTML=beatsOf(v).map(b=>'<i style="flex:'+b.dur+'"><span></span></i>').join('');
   const tok=++plTok; plPaused=false;
   document.getElementById('plToggle').textContent='Tạm dừng';
   seq(v,tok)
@@ -873,11 +962,11 @@ function wait(ms,tok){
   })
 }
 async function seq(v,tok){
-  const stage=document.getElementById('plStage');
-  for(let i=0;i<BEATS.length;i++){
+  const stage=document.getElementById('plStage'),bs=beatsOf(v);
+  for(let i=0;i<bs.length;i++){
     if(tok!==plTok)return;
-    const b=BEATS[i],s=st(v,b.id),len=(b.t[1]-b.t[0])*1000;
-    document.getElementById('plNow').textContent=(i+1)+'/6 · '+b.name;
+    const b=bs[i],s=st(v,b.id),len=b.dur*1000;
+    document.getElementById('plNow').textContent=(i+1)+'/'+bs.length+' · '+b.name;
     document.getElementById('plTime').textContent=b.t[0]+'–'+b.t[1]+'s';
     [...document.querySelectorAll('#plBar i')].forEach((el,j)=>{
       el.classList.toggle('done',j<i);
@@ -903,7 +992,7 @@ async function seq(v,tok){
         +'<span class="p2">cta_chotdon_v2.mp4 · lấy từ thư viện của kênh</span></div>'
         +(b.say?'<div class="pcap">'+b.say+'</div>':'')
     } else {
-      const m=TIER_VI[TIERS[tier].map[b.id]];
+      const m=TIER_VI[tierOf(tier,b.id)];
       stage.innerHTML='<div class="pcard"><span class="k">CHỜ DỰNG · VEO '+m.toUpperCase()+'</span>'
         +'<span class="n2">'+b.name+'</span><span class="p2">'
         +(s.prompt||b.desc)+'</span></div>'
@@ -973,7 +1062,7 @@ async function apiTest(){
   }catch(e){el.className='apist err';el.textContent='Không gọi được API: '+e.message}
 }
 async function genReal(v,b,say){
-  const s=st(v,b.id), tierKey=TIERS[tier].map[b.id], model=API.models[tierKey];
+  const s=st(v,b.id), tierKey=tierOf(tier,b.id), model=API.models[tierKey];
   const prompt=(s.prompt||b.desc||'').trim();
   if(!prompt) throw new Error('đoạn này chưa có prompt');
   say('gửi yêu cầu tới '+model+'…');
@@ -1062,7 +1151,7 @@ document.getElementById('tryVoice').onclick=()=>{
     ?'Trình duyệt đang đọc bằng bộ đọc tiếng Việt có sẵn. Bản chạy thật dùng omni nhân bản giọng gốc.'
     :'Trình duyệt này không có bộ đọc tiếng Việt. Bản chạy thật không phụ thuộc trình duyệt.'};
 document.getElementById('voiceAll').onclick=()=>{
-  for(let v=1;v<=batch;v++)for(const b of BEATS){if(!b.say)continue;
+  for(let v=1;v<=batch;v++)for(const b of beatsOf(v)){if(!b.say)continue;
     const s=st(v,b.id);if(!s.voice)s.voice={dur:dur(b.say)}}
   paintVoiceLines();paintLines();paintInsp()};
 if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
